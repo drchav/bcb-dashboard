@@ -890,7 +890,9 @@ def main():
     else:
         con = db.conectar(); print(">> Cache encontrado. Ultima atualizacao:", db.get_meta(con,"ultima_atualizacao")); con.close()
     class Servidor(ThreadingHTTPServer):
-        allow_reuse_address = False
+        # no Windows SO_REUSEADDR deixaria dois paineis na mesma porta; no servidor (Linux)
+        # ele so evita o "porta ocupada" por conexoes em TIME_WAIT logo apos um restart
+        allow_reuse_address = config.PORTA_FIXA and os.name != "nt"
     srv = None
     if config.AUTH:
         acon = auth.conectar()

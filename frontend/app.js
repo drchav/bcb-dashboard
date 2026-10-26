@@ -25,6 +25,7 @@ async function init(){
     `<b>${fmtInt(estado.meta.total_cadastro)}</b> instituições · <b>${estado.meta.total_rsfn}</b> na RSFN<br>`+
     `Atualizado: ${(estado.meta.ultima_atualizacao||"").replace("T"," ").slice(0,16)}`;
   setupBusca();
+  setupMenuMobile();
   posicionarTip();
   window.addEventListener("hashchange", route);
   document.addEventListener("keydown", e=>{ if(e.key==="Escape") fecharModal(); });
@@ -169,6 +170,7 @@ async function viewInstituicoes(presetGrupo){
     withInfo(autorizSel,"Situação de autorização (Lista de participantes do Pix): Autorizadas pelo BCB; Não sujeitas a autorização (IPs de propósito limitado); Sujeitas mas ainda não autorizadas (em adesão); ou todas as que estão na lista do Pix."),
     withInfo(finSel,"Só instituições com balanço publicado no IF.data (muitas de pagamento, consórcio e corretoras não reportam)."),
     limpar,fcount);
+  recolhivel(bar);
 
   const wrap=el("div",{class:"tablewrap"});
   const table=el("table"); table.append(el("thead"),el("tbody"));
@@ -1318,6 +1320,26 @@ function setupBusca(){
     box.classList.toggle("open",hits.length>0);
   },150); });
   document.addEventListener("click",e=>{ if(!e.target.closest(".global-search")) box.classList.remove("open"); });
+}
+
+// ---- no celular, recolhe uma barra de filtros longa atrás de um botão (busca e contador ficam à vista)
+function recolhivel(bar){
+  bar.classList.add("recolhe");
+  const btn=el("button",{class:"btn f-toggle",type:"button","aria-expanded":"false"});
+  btn.textContent="Filtros ▾";
+  btn.onclick=()=>{ const aberto=bar.classList.toggle("open");
+    btn.setAttribute("aria-expanded",aberto); btn.textContent=aberto?"Ocultar filtros ▴":"Filtros ▾"; };
+  bar.firstElementChild.after(btn);
+}
+
+// ---- menu lateral deslizante (telas estreitas)
+function setupMenuMobile(){
+  const btn=byId("navToggle");
+  const set=aberto=>{ document.body.classList.toggle("nav-open",aberto); btn.setAttribute("aria-expanded",aberto); };
+  btn.onclick=()=>set(!document.body.classList.contains("nav-open"));
+  byId("navBackdrop").onclick=()=>set(false);
+  window.addEventListener("hashchange",()=>set(false));
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape") set(false); });
 }
 
 // ---- ajusta a direção do balão "ⓘ" conforme o espaço disponível (evita corte)

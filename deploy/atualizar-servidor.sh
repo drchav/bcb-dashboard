@@ -15,7 +15,7 @@ src = sqlite3.connect('file:$DADOS/bcb.db?mode=ro', uri=True)
 dst = sqlite3.connect('$NOVO'); src.backup(dst); dst.close(); src.close()"
 
 echo ">> coletando dados do BCB"
-runuser -u bcb -- env BCB_DB_PATH="$NOVO" python3 pipeline.py
+runuser -u bcb -- env BCB_DB_PATH="$NOVO" python3 -u pipeline.py
 
 echo ">> conferindo o resultado"
 runuser -u bcb -- python3 -c "
@@ -32,5 +32,6 @@ systemctl stop bcb-dashboard
 rm -f "$DADOS/bcb.db-wal" "$DADOS/bcb.db-shm"
 mv -f "$DADOS/bcb.db" "$DADOS/bcb.db.anterior"
 mv -f "$NOVO" "$DADOS/bcb.db"
+chmod 640 "$DADOS/bcb.db"
 systemctl start bcb-dashboard
 echo ">> pronto"
