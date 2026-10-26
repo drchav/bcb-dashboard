@@ -1,5 +1,12 @@
 """Configuracao central do Hub do Sistema Financeiro Nacional."""
-import os
+import os, time
+
+# Horario de Brasilia (UTC-3) em tudo: "hoje" das coletas e a hora gravada da
+# ultima atualizacao. O servidor roda em UTC; aqui so este processo muda de fuso.
+FUSO = os.environ.get("BCB_FUSO", "America/Sao_Paulo")
+if hasattr(time, "tzset"):  # Linux/macOS (no Windows o PC ja esta no fuso local)
+    os.environ["TZ"] = FUSO
+    time.tzset()
 
 # ---------------------------------------------------------------- APIs do BCB
 OLINDA_IFDATA = "https://olinda.bcb.gov.br/olinda/servico/IFDATA/versao/v1/odata/"

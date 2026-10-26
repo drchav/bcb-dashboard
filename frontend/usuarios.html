@@ -59,7 +59,7 @@ async function req(metodo, url, body){
   return d;
 }
 function msg(el, txt, ok){ el.className = "auth-msg " + (ok ? "ok" : "erro"); el.textContent = txt; }
-const fmt = ts => ts ? new Date(ts * 1000).toLocaleString("pt-BR") : "—";
+const fmt = ts => ts ? new Date(ts * 1000).toLocaleString("pt-BR", {timeZone: "America/Sao_Paulo"}) : "—";
 
 function celula(txt, cls){ const td = document.createElement("td"); td.className = cls || "l"; td.textContent = txt; return td; }
 function tag(txt, cls){ const s = document.createElement("span"); s.className = "tag " + (cls||""); s.textContent = txt; return s; }
