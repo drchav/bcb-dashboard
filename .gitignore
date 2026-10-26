@@ -1,0 +1,16 @@
+# dados gerados (cache do BCB e usuarios do login) - nunca versionar
+dados/
+*.db
+*.db-wal
+*.db-shm
+*.db.*
+
+# configuracao local de deploy (IP do servidor)
+deploy/deploy.env
+
+# Python / IDE / SO
+__pycache__/
+*.pyc
+.idea/
+*.iml
+.DS_Store

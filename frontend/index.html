@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel SFN · Banco Central</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233987e5'/><text x='50' y='68' font-size='52' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>S</text></svg>">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">SFN</div>
+      <div class="brand-txt">
+        <strong>Painel SFN</strong>
+        <span>Banco Central</span>
+      </div>
+    </div>
+    <nav id="nav">
+      <a href="#/panorama" data-view="panorama"><span class="ic">◉</span> Panorama</a>
+      <a href="#/instituicoes" data-view="instituicoes"><span class="ic">▤</span> Instituições</a>
+      <a href="#/pagamentos" data-view="pagamentos"><span class="ic">⇄</span> Pagamentos (PIX & RSFN)</a>
+      <a href="#/credito" data-view="credito"><span class="ic">₵</span> Crédito (SFN)</a>
+      <a href="#/tarifas" data-view="tarifas"><span class="ic">◧</span> Tarifas de serviços</a>
+      <a href="#/cooperativismo" data-view="cooperativismo"><span class="ic">⬡</span> Cooperativismo</a>
+      <a href="#/prudencial" data-view="prudencial"><span class="ic">▣</span> Prudencial & Saúde</a>
+      <a href="#/conduta" data-view="conduta"><span class="ic">✸</span> Conduta & Reclamações</a>
+      <a href="#/supervisao" data-view="supervisao"><span class="ic">⚖</span> Supervisão & Eventos</a>
+      <a href="#/macro" data-view="macro"><span class="ic">∿</span> Indicadores Macro</a>
+      <div class="nav-sep"></div>
+      <a href="#/fontes" data-view="fontes"><span class="ic">⛓</span> Fontes de dados</a>
+    </nav>
+    <div class="side-foot">
+      <div class="side-meta" id="sideMeta">carregando…</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="crumbs" id="crumbs">Visão Geral</div>
+      <div class="top-tools">
+        <div class="global-search">
+          <input id="globalSearch" type="search" placeholder="Buscar instituição…" autocomplete="off">
+          <div class="gs-results" id="gsResults"></div>
+        </div>
+        <div class="period">
+          <label>Data-base</label>
+          <select id="anomesSel"></select>
+        </div>
+      </div>
+    </header>
+    <main id="content"><div class="loading">Carregando dados…</div></main>
+  </div>
+</div>
+
+<script src="/vendor/echarts.min.js"></script>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

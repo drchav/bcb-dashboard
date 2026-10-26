@@ -1,0 +1,27 @@
+[Unit]
+Description=Painel SFN (bcb.dlip.com.br)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=bcb
+Group=bcb
+WorkingDirectory=/srv/bcb-dashboard/backend
+Environment=BCB_HOST=127.0.0.1
+Environment=BCB_PORTA=8765
+Environment=BCB_PORTA_FIXA=1
+Environment=BCB_ABRIR_NAVEGADOR=0
+Environment=BCB_COOKIE_SEGURO=1
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 app.py
+Restart=always
+RestartSec=3
+# endurecimento
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/srv/bcb-dashboard/dados
+
+[Install]
+WantedBy=multi-user.target

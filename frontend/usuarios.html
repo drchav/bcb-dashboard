@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuários · Painel SFN</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233987e5'/><text x='50' y='68' font-size='52' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>S</text></svg>">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="users-page">
+  <header>
+    <div class="brand" style="margin:0">
+      <div class="brand-mark">SFN</div>
+      <div class="brand-txt"><strong>Usuários</strong><span>Painel SFN</span></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <a class="btn" href="/">← Voltar ao painel</a>
+      <button class="btn" id="btnSenha">Trocar minha senha</button>
+      <button class="btn" id="btnSair">Sair</button>
+    </div>
+  </header>
+
+  <form class="card" id="novo" style="margin-bottom:20px">
+    <h3>Novo usuário</h3>
+    <div class="csub" style="color:var(--ink-3);font-size:var(--fs-sm)">A pessoa entra com este e-mail e senha; ela mesma pode trocar a senha depois.</div>
+    <div class="g-form">
+      <div class="field"><label>E-mail</label><input name="email" type="email" required autocomplete="off"></div>
+      <div class="field"><label>Nome</label><input name="nome" autocomplete="off"></div>
+      <div class="field"><label>Senha inicial (mín. 8)</label><input name="senha" type="text" minlength="8" required autocomplete="off"></div>
+      <div class="field check"><input name="admin" id="nAdmin" type="checkbox"><label for="nAdmin">Administrador</label></div>
+    </div>
+    <div class="auth-msg" id="msgNovo"></div>
+    <button class="btn primary" type="submit">Cadastrar</button>
+  </form>
+
+  <div class="tablewrap" style="max-height:none">
+    <table>
+      <thead><tr><th class="l">E-mail</th><th class="l">Nome</th><th class="l">Perfil</th><th class="l">Situação</th>
+        <th class="l">Último acesso</th><th>Ações</th></tr></thead>
+      <tbody id="lista"><tr><td colspan="6">Carregando…</td></tr></tbody>
+    </table>
+  </div>
+  <div class="auth-msg" id="msgLista" style="margin-top:12px"></div>
+</div>
+
+<script type="module">
+import { montarUsuario, sair, trocarSenha } from "/conta.js";
+const $ = id => document.getElementById(id);
+$("btnSair").onclick = sair; $("btnSenha").onclick = trocarSenha;
+let eu = null;
+
+async function req(metodo, url, body){
+  const r = await fetch(url, {method: metodo, headers: {"Content-Type": "application/json"},
+                              body: body ? JSON.stringify(body) : undefined});
+  if(r.status === 401){ location.replace("/login"); throw new Error("login"); }
+  const d = await r.json().catch(() => ({}));
+  if(!r.ok) throw new Error(d.erro || ("Erro " + r.status));
+  return d;
+}
+function msg(el, txt, ok){ el.className = "auth-msg " + (ok ? "ok" : "erro"); el.textContent = txt; }
+const fmt = ts => ts ? new Date(ts * 1000).toLocaleString("pt-BR") : "—";
+
+function celula(txt, cls){ const td = document.createElement("td"); td.className = cls || "l"; td.textContent = txt; return td; }
+function tag(txt, cls){ const s = document.createElement("span"); s.className = "tag " + (cls||""); s.textContent = txt; return s; }
+function botao(txt, fn, cls){ const b = document.createElement("button"); b.className = "btn sm " + (cls||""); b.textContent = txt; b.onclick = fn; return b; }
+
+async function acao(fn){
+  try { await fn(); msg($("msgLista"), "Salvo.", true); await carregar(); }
+  catch(e){ if(e.message !== "login") msg($("msgLista"), e.message); }
+}
+
+async function carregar(){
+  const {usuarios} = await req("GET", "/api/usuarios");
+  const tb = $("lista"); tb.replaceChildren();
+  for(const u of usuarios){
+    const tr = document.createElement("tr");
+    tr.append(celula(u.email), celula(u.nome || "—"));
+    const p = celula(""); p.append(tag(u.admin ? "admin" : "usuário", u.admin ? "admin" : "")); tr.append(p);
+    const s = celula(""); s.append(tag(u.ativo ? "ativo" : "inativo", u.ativo ? "" : "off")); tr.append(s);
+    tr.append(celula(fmt(u.ultimo_login)));
+    const a = celula("", ""); a.style.display = "flex"; a.style.gap = "6px"; a.style.justifyContent = "flex-end";
+    a.append(botao("Redefinir senha", () => {
+      const nova = prompt(`Nova senha para ${u.email} (mín. 8 caracteres):`);
+      if(nova) acao(() => req("PATCH", "/api/usuarios/" + u.id, {senha: nova}));
+    }));
+    if(u.id !== eu.id){
+      a.append(botao(u.admin ? "Tirar admin" : "Tornar admin", () => acao(() => req("PATCH", "/api/usuarios/" + u.id, {admin: !u.admin}))));
+      a.append(botao(u.ativo ? "Desativar" : "Reativar", () => acao(() => req("PATCH", "/api/usuarios/" + u.id, {ativo: !u.ativo}))));
+      a.append(botao("Excluir", () => { if(confirm(`Excluir ${u.email}?`)) acao(() => req("DELETE", "/api/usuarios/" + u.id)); }, "danger"));
+    }
+    tr.append(a); tb.append(tr);
+  }
+}
+
+$("novo").addEventListener("submit", async ev => {
+  ev.preventDefault(); const f = ev.target;
+  try {
+    await req("POST", "/api/usuarios", {email: f.email.value, nome: f.nome.value, senha: f.senha.value, admin: f.admin.checked});
+    msg($("msgNovo"), `Usuário ${f.email.value} cadastrado.`, true); f.reset(); await carregar();
+  } catch(e){ if(e.message !== "login") msg($("msgNovo"), e.message); }
+});
+
+eu = await montarUsuario(null);
+if(eu) carregar().catch(e => msg($("msgLista"), e.message));
+</script>
+</body>
+</html>

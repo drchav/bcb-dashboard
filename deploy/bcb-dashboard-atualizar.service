@@ -1,0 +1,9 @@
+[Unit]
+Description=Atualiza os dados do Painel SFN (BCB)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/srv/bcb-dashboard/deploy/atualizar-servidor.sh
+TimeoutStartSec=2h

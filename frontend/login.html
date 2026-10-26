@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar · Painel SFN</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233987e5'/><text x='50' y='68' font-size='52' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>S</text></svg>">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="auth-page">
+  <form class="card auth-card" id="form" autocomplete="on">
+    <div class="brand">
+      <div class="brand-mark">SFN</div>
+      <div class="brand-txt"><strong>Painel SFN</strong><span>Banco Central</span></div>
+    </div>
+    <div class="field"><label for="email">E-mail</label>
+      <input id="email" name="email" type="email" autocomplete="username" required autofocus></div>
+    <div class="field"><label for="senha">Senha</label>
+      <input id="senha" name="senha" type="password" autocomplete="current-password" required></div>
+    <div class="auth-msg erro" id="msg" role="alert"></div>
+    <button class="btn primary full" type="submit" id="btn">Entrar</button>
+  </form>
+</div>
+<script>
+const f = document.getElementById("form"), msg = document.getElementById("msg"), btn = document.getElementById("btn");
+f.addEventListener("submit", async ev => {
+  ev.preventDefault(); msg.textContent = ""; btn.disabled = true; btn.textContent = "Entrando…";
+  try {
+    const r = await fetch("/api/auth/login", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({email: f.email.value, senha: f.senha.value})});
+    const d = await r.json().catch(() => ({}));
+    if (r.ok) { location.replace("/"); return; }
+    msg.textContent = d.erro || ("Erro " + r.status);
+  } catch (e) { msg.textContent = "Falha de conexão."; }
+  btn.disabled = false; btn.textContent = "Entrar";
+});
+</script>
+</body>
+</html>
